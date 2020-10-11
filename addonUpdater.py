@@ -5,6 +5,7 @@ def getLatestVersion(owner, repo, current):
     url = 'https://api.github.com/repos/{}/{}/releases/latest'.format(owner, repo)
     r = requests.get(url)
     if r.status_code != requests.codes.ok:
+        print('Version check for {} failed.'.format(repo))
         return False
     resp = r.json()
     if resp['tag_name'] != current:
