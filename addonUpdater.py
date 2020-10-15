@@ -1,8 +1,9 @@
 import csv, json, requests
 from urllib.parse import urljoin
 from pathlib import Path
+from zipfile import ZipFile
 
-addonPath = Path.cwd() / 'addons'
+dlPath = Path.cwd() / 'addons'
 
 def getLatestVersion(owner, repo, current):
     url = 'https://api.github.com/repos/{}/{}/releases/latest'.format(owner, repo)
@@ -23,6 +24,7 @@ def getLatestVersion(owner, repo, current):
                 result = downloadURL(assetItem['browser_download_url'], filename)
                 if result == True:
                     print("Download success.")
+                    unzipFile(filename)
                 else:
                     print("Download failed.")
     return resp['tag_name']
@@ -32,9 +34,14 @@ def downloadURL(url, filename):
     if r.status_code != requests.codes.ok:
         print("Wrong status.")
         return False
-    filePath = addonPath / filename
+    filePath = dlPath / filename
     with open(filePath, 'wb') as f:
         f.write(r.content)
+    return True
+
+def unzipFile(filename):
+    with ZipFile(dlPath / filename, 'r') as f:
+        f.extractall(dlPath / 'unzipped')
     return True
 
 def main():
