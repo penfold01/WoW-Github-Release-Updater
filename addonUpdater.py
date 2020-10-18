@@ -1,11 +1,16 @@
-import csv, json, requests
+import requests, dirsync
+import csv, json
 from urllib.parse import urljoin
 from pathlib import Path
 from zipfile import ZipFile
+from shutil import rmtree
+from os.path import isdir
 
 dlPath = Path.cwd() / 'addons'
+installPath = Path('D:/Games/Blizzard/World of Warcraft/_retail_/Interface/AddOns')
 
 def getLatestVersion(owner, repo, current):
+    updatedVersion = -1
     url = 'https://api.github.com/repos/{}/{}/releases/latest'.format(owner, repo)
     r = requests.get(url)
     if r.status_code != requests.codes.ok:
@@ -13,10 +18,11 @@ def getLatestVersion(owner, repo, current):
         return -1
     resp = r.json()
     if resp['tag_name'] != current:
-        print("Found new version {}".format(resp['tag_name']))
+        updatedVersion = resp['tag_name']
+        print("Found new version {}".format(updatedVersion))
         for assetItem in resp['assets']:
             if assetItem['content_type'] == 'application/zip':
-                print('Update {} to version {} from {}? \033[92mY/\033[91mN\033[0m'.format(repo, resp['tag_name'], assetItem['browser_download_url']))
+                print('Update {} to version {} from {}? \033[92mY/\033[91mN\033[0m'.format(repo, updatedVersion, assetItem['browser_download_url']))
                 yn = str(input()).lower()
                 if yn != 'y':
                     continue
@@ -27,7 +33,7 @@ def getLatestVersion(owner, repo, current):
                     unzipFile(filename)
                 else:
                     print("Download failed.")
-    return resp['tag_name']
+    return updatedVersion
 
 def downloadURL(url, filename):
     r = requests.get(url, allow_redirects=True)
@@ -43,6 +49,12 @@ def unzipFile(filename):
     with ZipFile(dlPath / filename, 'r') as f:
         f.extractall(dlPath / 'unzipped')
     return True
+
+def updateFiles(sourceDir, destDir):
+    if isdir(sourceDir) and isdir(destDir):
+        print("Copying to Addon directory...")
+        dirsync.sync(sourceDir, destDir, action='sync')
+        rmtree(sourceDir, ignore_errors=True)
 
 def main():
     entries = []
@@ -64,6 +76,7 @@ def main():
         with open('addonList.csv', mode='w', newline='') as f:
             writer = csv.writer(f)
             writer.writerows(updatedEntries)
+        updateFiles(dlPath / 'unzipped', installPath)
 
 if __name__ == "__main__":
     main()
