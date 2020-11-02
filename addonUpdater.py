@@ -1,5 +1,5 @@
 import requests, dirsync
-import csv, json
+import csv, json, configparser
 from urllib.parse import urljoin
 from pathlib import Path
 from zipfile import ZipFile
@@ -7,7 +7,6 @@ from shutil import rmtree
 from os.path import isdir
 
 dlPath = Path.cwd() / 'addons'
-installPath = Path('D:/Games/Blizzard/World of Warcraft/_retail_/Interface/AddOns')
 
 def getLatestVersion(owner, repo, current):
     updatedVersion = -1
@@ -57,6 +56,15 @@ def updateFiles(sourceDir, destDir):
         rmtree(sourceDir, ignore_errors=True)
 
 def main():
+    cfg = configparser.ConfigParser()
+    cfg.read('default.cfg')
+    if 'default' not in cfg:
+        print('Malformed config file. Missing "[default]" section.')
+        return
+    if 'InstallPath' not in cfg['default']:
+        print('Malformed config file. Missing WoW "InstallPath".')
+        return
+    installPath = Path(cfg['default']['InstallPath']) / '_retail_' / 'Interface' / 'AddOns'
     entries = []
     updatedEntries = []
     updated = False
