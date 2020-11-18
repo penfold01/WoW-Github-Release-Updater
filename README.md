@@ -4,6 +4,12 @@ Updates WoW addons via Github releases.  This specifically checks for packaged .
 
 ## Setup
 
+### Dependencies
+
+Requires the [requests](https://pypi.org/project/requests/) and [dirsync](https://pypi.org/project/dirsync/) libraries. Can be installed via pip.  
+
+### Config files
+
 This script expects a config file named "default.cfg" (in python ConfigParser INI format) and a list of addons in "addonList.csv". Examples of each of these files is given as "example-..."
 
 #### default.cfg
