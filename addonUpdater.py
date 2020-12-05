@@ -20,7 +20,7 @@ def getLatestVersion(owner, repo, current):
         updatedVersion = resp['tag_name']
         print("Found new version {}".format(updatedVersion))
         for assetItem in resp['assets']:
-            if assetItem['content_type'] == 'application/zip':
+            if (assetItem['content_type'] == 'application/zip') or (assetItem['content_type']) == 'application/x-zip-compressed':
                 print('Update {} to version {} from {}? \033[92mY/\033[91mN\033[0m'.format(repo, updatedVersion, assetItem['browser_download_url']))
                 yn = str(input()).lower()
                 if yn != 'y':
